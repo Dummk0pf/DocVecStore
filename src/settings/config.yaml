@@ -1,0 +1,13 @@
+UNIGRAMS:
+  FILE_PATH: ./resources/unigrams.csv
+  DICT_PATH: ./resources/unigrams.pkl
+MILVUS:
+  DB: doc_vec_store
+  HOST: standalone
+  PORT: 19530
+  COLLECTION: 
+  TEST_COLLECTION: test_collection
+LOGGER:
+  DIRECTORY: ./logs
+INPUT_DIR: ./input
+OUTPUT_DIR: ./output
