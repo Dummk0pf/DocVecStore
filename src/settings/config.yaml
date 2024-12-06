@@ -11,3 +11,4 @@ LOGGER:
   DIRECTORY: ./logs
 INPUT_DIR: ./input
 OUTPUT_DIR: ./output
+PICKLE_DIR: ./output/pickle_files

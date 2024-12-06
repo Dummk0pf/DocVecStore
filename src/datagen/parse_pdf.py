@@ -1,3 +1,4 @@
+import pickle
 import pathlib
 import subprocess
 
@@ -27,6 +28,7 @@ class PDF:
         self.page_end = page_end
         self.input_file_path = input_file_path
         self.output_file_path = output_file_path
+        self.file_name = input_file_path.stem
 
     def convert_pdf_to_text(self):
         logger = LogManager().get_logger()
@@ -53,3 +55,7 @@ class PDF:
             lines.append(line)
 
         file.close()
+
+    def store_page_offset(self):
+        pdf_details = (self.input_file_path.stem, self.page_start, self.page_end)
+        pickle.dump(pdf_details, open(pathlib.Path.joinpath(pathlib.Path(Config().get_instance()["OUTPUT_DIR"]), pathlib.Path(f"./pickle_files/{self.input_file_path.stem}.pkl")), "wb"))

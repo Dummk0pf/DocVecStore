@@ -7,9 +7,6 @@ from utils.normalize_token import normalize_all
 from database.milvus_client import MilvusDBClient
 from embeddings.unigram_embeddings import vectorize
 
-# REMOVE_ME
-from pprint import pprint
-
 CHUNK_SIZE = 1000
 
 def chunkify(iterable, chunk_size=CHUNK_SIZE):
@@ -26,6 +23,7 @@ def run(files: list[tuple]):
 
         pdf_instance = PDF(input_file_path, output_file_path, page_start, page_end)
         pdf_instance.convert_pdf_to_text()
+        pdf_instance.store_page_offset()
         vectorized_lines = list()
 
         for page_nm, page in tqdm(enumerate(pdf_instance.paginate()), desc=f"Iterating file: {pdf_instance.output_file_path.name}"):
@@ -38,18 +36,9 @@ def run(files: list[tuple]):
                     vectorized_lines.append({
                         Field.TOKEN: token,
                         Field.PAGE_NM: page_nm,
+                        Field.BOOK_NM: pdf_instance.file_name,
                         Field.EMBEDDINGS: vector,
                     })
 
         for lines_chunk in tqdm(chunkify(vectorized_lines), desc="Storing documents in MilvusDB"):
             db_client.insert(lines_chunk)
-            
-def search(tokens: list[str]):
-    db_client = MilvusDBClient()
-    vector_list = [vectorize(normalize_all(token)) for token in tokens]
-
-    pprint(db_client.search(
-        embeddings=vector_list,
-        output_fields=[Field.TOKEN, Field.PAGE_NM],
-        limit=10
-    ))

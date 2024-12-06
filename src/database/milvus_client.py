@@ -19,6 +19,7 @@ class Field(StrEnum):
     ID = "id"
     TOKEN = "token"
     PAGE_NM = "page_nm"
+    BOOK_NM = "book_nm"
     EMBEDDINGS = "embeddings"
 
 class MilvusDBClient(metaclass=Singleton):
@@ -104,6 +105,7 @@ class MilvusDBClient(metaclass=Singleton):
         collection_schema.add_field(field_name=Field.ID.value, datatype=DataType.INT64, is_primary=True, auto_id=True)
         collection_schema.add_field(field_name=Field.TOKEN.value, datatype=DataType.VARCHAR, max_length=1600)
         collection_schema.add_field(field_name=Field.PAGE_NM.value, datatype=DataType.INT16)
+        collection_schema.add_field(field_name=Field.BOOK_NM.value, datatype=DataType.VARCHAR, max_length=300)
         collection_schema.add_field(field_name=Field.EMBEDDINGS.value, datatype=DataType.FLOAT_VECTOR, dim=37)  # Change to FLOAT16 if needed
 
         collection_schema.verify()
@@ -214,7 +216,7 @@ class MilvusDBClient(metaclass=Singleton):
             logger.error(f"Error occurred in deletion of documents due to {e}")
             raise ValueError(f"Error occurred in deletion of documents due to {e.message}")
 
-    def search(self, embeddings: (list[list[float]]), filter: str="", output_fields: list[Field]=[Field.TOKEN, Field.PAGE_NM],limit: int = 10, metric_type:Metric = Metric.INNER_PRODUCT, other_search_params: dict = {}):
+    def search(self, embeddings: (list[list[float]]), filter: str="", output_fields: list[Field]=[Field.TOKEN, Field.PAGE_NM, Field.BOOK_NM],limit: int = 10, offset: int = 0, metric_type:Metric = Metric.INNER_PRODUCT, other_search_params: dict = {}):
 
         '''
         Utility for single and bulk search of documents in the current collection (this type of search only supports single vector fields)
@@ -258,12 +260,12 @@ class MilvusDBClient(metaclass=Singleton):
         output_field_values = [field.value for field in output_fields]
 
         try:
-            return list(self._client.search(self._current_collection, data=embeddings, output_fields=output_field_values, filter=filter, limit=limit, search_params={"metric_type": metric_type.value, "params": other_search_params}))
+            return self._client.search(self._current_collection, data=embeddings, output_fields=output_field_values, filter=filter, limit=limit, offset=offset, search_params={"metric_type": metric_type.value, "params": other_search_params})
         except (MilvusException, Exception) as e:
             logger.error(f"Unable to query for the given vector due to {e}")
             raise ValueError(f"Unable to query for the given vector due to {e}")
 
-    def query(self, ids: (int | list[int] | None)=None, filter: str="", output_fields: list[Field]=[Field.TOKEN, Field.PAGE_NM]):
+    def query(self, ids: (int | list[int] | None)=None, filter: str="", output_fields: list[Field]=[Field.TOKEN, Field.PAGE_NM, Field.BOOK_NM]):
 
         '''
         Utility for single and bulk query of documents, this is similar to the traditional SQL query of documents
