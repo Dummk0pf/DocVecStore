@@ -8,8 +8,14 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y python3.11 python3.11-venv python3.11-dev && \
     apt install poppler-utils -y && \
+    apt install curl -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && \
+    export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
+    nvm install v22.12.0
 
 ENV PYTHONDONTWRITEBYTECODE 1
 
@@ -22,3 +28,5 @@ WORKDIR /vector_search
 COPY ./src/settings/requirements.txt requirements.txt
 
 RUN python3.11 -m venv .venv && . .venv/bin/activate && pip install -r ./requirements.txt
+
+EXPOSE 5173

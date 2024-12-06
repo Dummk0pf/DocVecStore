@@ -64,6 +64,7 @@ services:
     container_name: doc_vec_store
     ports:
       - "5678:5678"
+      - "5173:5173"
     build: .
     tty: true
     stdin_open: true

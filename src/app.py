@@ -25,6 +25,7 @@ def main():
     files = [
         ("Competitive Programming HandBook.pdf", "Competitive Programming HandBook.txt", 13, 289),
         ("Art Of Computer Programming.pdf", "Art Of Computer Programming.txt", 23, 487),
+        ("The Art of Electronics.pdf", "The Art of Electronics.txt", 34, 1198),
     ]
     datagen.run(files)
 
